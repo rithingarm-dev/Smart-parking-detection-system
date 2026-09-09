@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Parking Slot Detection System</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:#0f172a;color:white;padding:20px}
+.container{max-width:1000px;margin:auto}
+h1{text-align:center;margin-bottom:10px;color:#38bdf8}
+.subtitle{text-align:center;color:#cbd5e1;margin-bottom:25px}
+.dashboard{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin-bottom:30px}
+.card{background:#1e293b;padding:20px;width:200px;text-align:center;border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,.3)}
+.card h2{font-size:32px;color:#22c55e}.card p{margin-top:8px;color:#cbd5e1}
+.parking-area{background:#1e293b;padding:25px;border-radius:15px}
+.parking-area h2{text-align:center;margin-bottom:25px}
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.slot{height:150px;border-radius:12px;display:flex;flex-direction:column;justify-content:center;align-items:center;cursor:pointer;transition:.3s}
+.available{background:#166534;border:3px solid #22c55e}
+.occupied{background:#991b1b;border:3px solid #ef4444}
+.slot:hover{transform:scale(1.05)}
+.car{font-size:45px}.slot-number{font-size:20px;font-weight:bold;margin-top:5px}.status{margin-top:5px;font-size:14px}
+.controls{text-align:center;margin-top:25px}
+button{border:none;padding:12px 20px;margin:5px;border-radius:8px;cursor:pointer;font-size:16px;font-weight:bold}
+.entry{background:#22c55e;color:white}.exit{background:#ef4444;color:white}.reset{background:#38bdf8;color:white}
+button:hover{opacity:.8}
+@media(max-width:700px){.slots{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:450px){.slots{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🚗 Smart Parking Slot Detection System</h1>
+<p class="subtitle">IoT / AI Based Parking Slot Monitoring</p>
+
+<div class="dashboard">
+<div class="card"><h2 id="totalSlots">8</h2><p>Total Slots</p></div>
+<div class="card"><h2 id="availableSlots">8</h2><p>Available Slots</p></div>
+<div class="card"><h2 id="occupiedSlots">0</h2><p>Occupied Slots</p></div>
+</div>
+
+<div class="parking-area">
+<h2>Parking Area</h2>
+<div class="slots" id="slotsContainer"></div>
+<div class="controls">
+<button class="entry" onclick="vehicleEntry()">🚗 Vehicle Entry</button>
+<button class="exit" onclick="vehicleExit()">🚙 Vehicle Exit</button>
+<button class="reset" onclick="resetParking()">🔄 Reset</button>
+</div>
+</div>
+</div>
+
+<script>
+const totalSlots=8;
+let parkingSlots=Array(totalSlots).fill(false);
+
+function displaySlots(){
+ const container=document.getElementById("slotsContainer");
+ container.innerHTML="";
+ parkingSlots.forEach((occupied,index)=>{
+  const slot=document.createElement("div");
+  slot.className=occupied?"slot occupied":"slot available";
+  slot.innerHTML=`<div class="car">${occupied?"🚗":"🅿️"}</div>
+  <div class="slot-number">Slot ${index+1}</div>
+  <div class="status">${occupied?"OCCUPIED":"AVAILABLE"}</div>`;
+  slot.onclick=()=>{
+   parkingSlots[index]=!parkingSlots[index];
+   updateDashboard(); displaySlots();
+  };
+  container.appendChild(slot);
+ });
+}
+
+function updateDashboard(){
+ const occupied=parkingSlots.filter(Boolean).length;
+ document.getElementById("totalSlots").innerText=totalSlots;
+ document.getElementById("availableSlots").innerText=totalSlots-occupied;
+ document.getElementById("occupiedSlots").innerText=occupied;
+}
+
+function vehicleEntry(){
+ const freeSlot=parkingSlots.indexOf(false);
+ if(freeSlot===-1){alert("❌ Parking Full!");return;}
+ parkingSlots[freeSlot]=true;
+ updateDashboard();displaySlots();
+ alert("🚗 Vehicle Parked in Slot "+(freeSlot+1));
+}
+
+function vehicleExit(){
+ const occupiedSlot=parkingSlots.indexOf(true);
+ if(occupiedSlot===-1){alert("No vehicle is currently parked.");return;}
+ parkingSlots[occupiedSlot]=false;
+ updateDashboard();displaySlots();
+ alert("🚙 Vehicle exited from Slot "+(occupiedSlot+1));
+}
+
+function resetParking(){
+ parkingSlots=Array(totalSlots).fill(false);
+ updateDashboard();displaySlots();
+}
+
+displaySlots();
+updateDashboard();
+</script>
+</body>
+</html>
